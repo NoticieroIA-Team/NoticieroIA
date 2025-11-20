@@ -3,43 +3,86 @@
 
 require_once "db/db.php";
 
-$conexion = Database::conectar();
+$db = Database::conectar();                     // MongoDB\Database
+$coleccion = $db->selectCollection('noticias');
 
-$sql = "SELECT 
-            id,
-            titulo,
-            descripcion,
-            imagen,
-            noticia_revisada,
-            imagen_revisada,
-            publicado,
-            fecha_publicacion,
+// Obtenemos todas las noticias ordenadas por id DESC
+$cursor = $coleccion->find(
+    [],
+    ['sort' => ['id' => -1]]
+);
 
-            -- Map de estados desde la BBDD
-            CASE noticia_revisada
-                WHEN 0 THEN 'Pendiente'
-                WHEN 1 THEN 'Revisada'
-                ELSE ''
-            END AS noticia_estado,
+$noticias = [];
 
-            CASE imagen_revisada
-                WHEN 0 THEN 'Pendiente'
-                WHEN 1 THEN 'Aprobada'
-                ELSE ''
-            END AS imagen_estado,
+// Recorremos el cursor y montamos un array similar al fetch_assoc()
+foreach ($cursor as $doc) {
+    // Pasar BSONDocument a array asociativo
+    $row = json_decode(json_encode($doc), true);
 
-            CASE publicado
-                WHEN 0 THEN 'Borrador'
-                WHEN 1 THEN 'Publicado'
-                ELSE ''
-            END AS publicado_estado
+    // Aseguramos claves básicas (por si acaso)
+    $id               = $row['id']               ?? null;
+    $titulo           = $row['titulo']           ?? '';
+    $descripcion      = $row['descripcion']      ?? '';
+    $imagen           = $row['imagen']           ?? '';
+    $noticia_revisada = $row['noticia_revisada'] ?? null; // puede ser bool o int
+    $imagen_revisada  = $row['imagen_revisada']  ?? null;
+    $publicado        = $row['publicado']        ?? null;
+    $fecha_publicacion = $row['fecha_publicacion'] ?? null;
 
-        FROM noticias
-        ORDER BY id DESC";
+    // Normalizamos a algo comparable (0/1 o true/false)
+    $nr = $noticia_revisada;
+    $ir = $imagen_revisada;
+    $pb = $publicado;
 
-$result = $conexion->query($sql);
+    // noticia_estado
+    if ($nr === 0 || $nr === '0' || $nr === false) {
+        $noticia_estado = 'Pendiente';
+    } elseif ($nr === 1 || $nr === '1' || $nr === true) {
+        $noticia_estado = 'Revisada';
+    } else {
+        $noticia_estado = '';
+    }
+
+    // imagen_estado
+    if ($ir === 0 || $ir === '0' || $ir === false) {
+        $imagen_estado = 'Pendiente';
+    } elseif ($ir === 1 || $ir === '1' || $ir === true) {
+        $imagen_estado = 'Aprobada';
+    } else {
+        $imagen_estado = '';
+    }
+
+    // publicado_estado
+    if ($pb === 0 || $pb === '0' || $pb === false) {
+        $publicado_estado = 'Borrador';
+    } elseif ($pb === 1 || $pb === '1' || $pb === true) {
+        $publicado_estado = 'Publicado';
+    } else {
+        $publicado_estado = '';
+    }
+
+    // Si fecha_publicacion es UTCDateTime, la convertimos a DateTime o string
+    if ($fecha_publicacion instanceof MongoDB\BSON\UTCDateTime) {
+        $fecha_publicacion_php = $fecha_publicacion->toDateTime();
+    } else {
+        $fecha_publicacion_php = $fecha_publicacion; // null o lo que venga
+    }
+
+    // Montamos el array como si fuera una fila de MySQL
+    $noticias[] = [
+        'id'                => $id,
+        'titulo'            => $titulo,
+        'descripcion'       => $descripcion,
+        'imagen'            => $imagen,
+        'noticia_revisada'  => $noticia_revisada,
+        'imagen_revisada'   => $imagen_revisada,
+        'publicado'         => $publicado,
+        'fecha_publicacion' => $fecha_publicacion_php,
+        'noticia_estado'    => $noticia_estado,
+        'imagen_estado'     => $imagen_estado,
+        'publicado_estado'  => $publicado_estado,
+    ];
+}
 
 // Cargamos la vista
 require_once "views/noticias_view.phtml";
-
-$conexion->close();
