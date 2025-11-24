@@ -144,6 +144,47 @@ switch ($accion) {
                 );
 
                 if ($resultado === true) {
+
+                    // --- ENVIAR DATOS A N8N ---
+                    $data = [
+                        'dni' => $dni,
+                        'nombre' => $nombre,
+                        'apellidos' => $apellidos,
+                        'numero_empresa' => $numero_empresa,
+                        'email' => $email,
+                        // Enviamos contraseña hasheada a n8n (registro externo)
+                        'password' => password_hash($password, PASSWORD_BCRYPT),
+                        'created_at' => date('Y-m-d H:i:s'),
+                    ];
+
+                    // URL del webhook de n8n
+                    $url = 'https://digital-n8n.owolqd.easypanel.host/webhook-test/from-php-users';
+
+                    $ch = curl_init($url);
+                    curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                        'Content-Type: application/json',
+                        // Opcional: usa el mismo token que valides en el Webhook de n8n
+                        'X-API-KEY: TU_TOKEN_SECRETO',
+                    ]);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+                    $response = curl_exec($ch);
+                    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+                    if ($response === false) {
+                        $errorCurl = curl_error($ch);
+                        // No romper el flujo si falla n8n: solo loguear
+                        error_log('Error cURL n8n: ' . $errorCurl);
+                    } elseif ($httpCode < 200 || $httpCode >= 300) {
+                        // Loguear si n8n devolvió error
+                        error_log('Error HTTP n8n: ' . $httpCode . ' - ' . $response);
+                    }
+
+                    curl_close($ch);
+                    // --- FIN ENVÍO A N8N ---
+
                     // Tras registro, volvemos a login
                     header("Location: index.php?controller=auth&action=login");
                     exit;
@@ -170,4 +211,5 @@ switch ($accion) {
         header("Location: index.php?controller=auth&action=login");
         exit;
 }
-    //  <!-- HOLA RUBEN -->
+
+//  <!-- HOLA RUBEN -->
