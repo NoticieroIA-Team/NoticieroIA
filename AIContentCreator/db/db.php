@@ -1,34 +1,24 @@
 <?php
 
-require __DIR__ . '/../../vendor/autoload.php';   // carga Composer
-use MongoDB\Client;
-
 class Database {
 
     public static function conectar()
     {
-        // Cargar variables de entorno (.env)
-        if (file_exists(__DIR__ . '/../../.env')) {
-            $env = parse_ini_file(__DIR__ . '/../../.env');
+        $host = "localhost";
+        $user = "root";
+        $pass = "";
+        $dbname = "aicontentcreator";  // Ajusta al nombre final de tu BD
+
+        $conexion = new mysqli($host, $user, $pass, $dbname);
+
+        if ($conexion->connect_error) {
+            die("Error de conexión: " . $conexion->connect_error);
         }
 
-        // Si usas otro sistema de carga de .env, adapta esta línea:
-        $uri = $env['MONGO_URI'] ?? getenv('MONGO_URI');
+        // Para permitir utf8 en texto
+        $conexion->set_charset("utf8mb4");
 
-        if (!$uri) {
-            die("Error: No se encontró la variable MONGO_URI en el .env");
-        }
-
-        try {
-            // Crear cliente MongoDB
-            $client = new Client($uri);
-
-            // Seleccionar base de datos (igual que en Node.js)
-            return $client->selectDatabase('AIContentCreator');
-
-        } catch (Exception $e) {
-            die("Error de conexión a MongoDB: " . $e->getMessage());
-        }
+        return $conexion;
     }
 }
     //  <!-- HOLA RUBEN -->

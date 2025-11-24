@@ -11,5 +11,4 @@ $usuario = $_SESSION['usuario'];
 
 // Mostramos el home del usuario
 require "views/home_view.phtml";
-
-// ------------------------------------------------------------------------
+    //  <!-- HOLA RUBEN -->
