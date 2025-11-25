@@ -62,7 +62,7 @@
                             <h3><?= htmlspecialchars($row['tema']) ?></h3>
 
                             <form method="POST" action="<?= BASE_URL ?>controllers/eliminar_genero.php" class="delete-form">
-<input type="hidden" name="id" value="<?= (int)$row['id_genero'] ?>">
+                                <input type="hidden" name="id" value="<?= (int)$row['id_genero'] ?>">
                                 <button type="submit" class="btn btn-delete"
                                         onclick="return confirm('¿Seguro que deseas eliminar este género?');">
                                     Eliminar
@@ -77,9 +77,10 @@
                             • <?= strtoupper(htmlspecialchars($row['idioma'])) ?>
                         </p>
 
-<a href="index.php?controller=articulos&id_genero=<?= (int)$row['id_genero'] ?>">
-    Ir a artículos →
-</a>
+                        <a href="index.php?controller=noticias&id_genero=<?= (int)$row['id_genero'] ?>">
+                             Ir a artículos →
+                        </a>
+
                     </article>
                 <?php endforeach; ?>
             <?php else: ?>
@@ -94,10 +95,13 @@
         © 2025 AI Content Creator - Todos los derechos reservados
     </footer>
 
+    <!-- BOTÓN FLOTANTE -->
     <button id="fabAdd" class="fab" aria-label="Añadir Género" title="Añadir Género">+</button>
 
+    <!-- MODAL NUEVO GÉNERO -->
     <div id="modalBackdrop" class="modal-backdrop" aria-hidden="true">
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+
             <div class="modal-header">
                 <h3 id="modalTitle" class="modal-title">Nuevo Género</h3>
                 <button class="btn ghost" id="btnClose">✕</button>
@@ -106,16 +110,19 @@
             <form id="genreForm" method="POST" action="<?= BASE_URL ?>controllers/guardar_genero.php">
                 <div class="modal-body">
 
+                    <!-- TEMA -->
                     <div>
                         <label for="tema">Tema</label>
                         <input type="text" id="tema" name="tema" required>
                     </div>
 
+                    <!-- DESCRIPCIÓN -->
                     <div>
                         <label for="descripcion">Descripción</label>
                         <input type="text" id="descripcion" name="descripcion" required>
                     </div>
 
+                    <!-- FRECUENCIA -->
                     <div>
                         <label for="frecuencia">Frecuencia</label>
                         <select id="frecuencia" name="frecuencia" required>
@@ -126,11 +133,22 @@
                         </select>
                     </div>
 
+                    <!-- CANTIDAD -->
                     <div>
                         <label for="cantidad">Cantidad</label>
                         <input type="number" id="cantidad" name="cantidad" min="1" required>
                     </div>
 
+                    <!-- 🔥 AÑADIR FUENTES (RECUPERADO) -->
+                    <div id="addSourcesContainer">
+                        <label for="addSources">¿Añadir Fuentes?</label>
+                        <select id="addSources" name="addSources">
+                            <option value="no" selected>No</option>
+                            <option value="si">Sí</option>
+                        </select>
+                    </div>
+
+                    <!-- IDIOMA -->
                     <div>
                         <label for="idioma">Idioma</label>
                         <select id="idioma" name="idioma" required>
@@ -141,13 +159,16 @@
                         </select>
                     </div>
 
+                    <!-- SECCIÓN DE FUENTES -->
                     <div id="sourcesSection" class="sources-section">
                         <label>Fuentes</label>
                         <div id="sourcesList"></div>
                         <button type="button" class="btn add-source" id="btnAddSource">+ Añadir fuente</button>
                     </div>
 
+                    <!-- FUENTES EN JSON -->
                     <input type="hidden" id="fuentes" name="fuentes">
+
                 </div>
 
                 <div class="modal-footer">
@@ -155,6 +176,7 @@
                     <button type="submit" class="btn primary">Guardar</button>
                 </div>
             </form>
+
         </div>
     </div>
 
