@@ -1,0 +1,23 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copiar package.json e instalar dependencias
+COPY beta/node/package*.json ./
+RUN npm install --production
+
+# Copiar código de la aplicación
+COPY beta/node/*.js ./
+
+# Copiar archivos estáticos
+COPY beta/vistas/ ./vistas/
+COPY beta/css/ ./css/
+COPY beta/js/ ./js/
+COPY beta/img/ ./img/
+
+# Exponer puerto
+EXPOSE 3000
+
+# Comando de inicio
+CMD ["node", "server.js"]
+
