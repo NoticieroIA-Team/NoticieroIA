@@ -141,14 +141,22 @@ app.get('/test', (req, res) => {
     message: 'Servidor Node.js funcionando correctamente',
     timestamp: new Date().toISOString(),
     port: PORT,
-    __dirname: __dirname
+    __dirname: __dirname,
+    hostname: req.hostname,
+    ip: req.ip,
+    headers: req.headers
   });
 });
 
-// Middleware para manejar 404
+// Middleware para manejar 404 - debe ir ANTES del listen
+// Pero como está después de todas las rutas, está bien aquí
 app.use((req, res) => {
   console.log(`❌ Ruta no encontrada: ${req.method} ${req.url}`);
-  res.status(404).json({ error: 'Ruta no encontrada', path: req.url });
+  res.status(404).json({ 
+    error: 'Ruta no encontrada', 
+    path: req.url,
+    availableRoutes: ['/', '/login', '/home', '/articulos', '/api', '/health', '/debug/files', '/test']
+  });
 });
 
 // Manejo de errores no capturados
