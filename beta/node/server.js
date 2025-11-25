@@ -78,6 +78,41 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Debug endpoint - verificar estructura de archivos
+app.get('/debug/files', (req, res) => {
+  const fs = require('fs');
+  const debugInfo = {
+    __dirname: __dirname,
+    cwd: process.cwd(),
+    files: {}
+  };
+  
+  try {
+    debugInfo.files.app = fs.readdirSync(__dirname);
+    debugInfo.files.vistas = fs.existsSync(path.join(__dirname, './vistas')) 
+      ? fs.readdirSync(path.join(__dirname, './vistas'))
+      : 'NO EXISTE';
+    debugInfo.files.css = fs.existsSync(path.join(__dirname, './css'))
+      ? fs.readdirSync(path.join(__dirname, './css'))
+      : 'NO EXISTE';
+    debugInfo.files.js = fs.existsSync(path.join(__dirname, './js'))
+      ? fs.readdirSync(path.join(__dirname, './js'))
+      : 'NO EXISTE';
+    debugInfo.files.img = fs.existsSync(path.join(__dirname, './img'))
+      ? fs.readdirSync(path.join(__dirname, './img'))
+      : 'NO EXISTE';
+    
+    // Verificar archivos específicos
+    const loginHtml = path.join(__dirname, './vistas/login.html');
+    debugInfo.files.loginHtml = fs.existsSync(loginHtml) ? 'EXISTE' : 'NO EXISTE';
+    
+  } catch (err) {
+    debugInfo.error = err.message;
+  }
+  
+  res.json(debugInfo);
+});
+
 app.post('/api/generos', async (req, res) => {
   try {
     console.log('Datos recibidos del formulario:', req.body); // <-- Aquí se ve qué datos llegan

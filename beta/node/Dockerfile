@@ -1,4 +1,6 @@
 # Multi-stage build for optimized production image
+# IMPORTANTE: Este Dockerfile requiere que el contexto de build sea la RAÍZ del proyecto
+# para poder copiar los archivos estáticos desde beta/vistas, beta/css, etc.
 
 # Stage 1: Build stage
 FROM node:20-alpine AS builder
@@ -6,7 +8,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY beta/node/package*.json ./
 
 # Install dependencies
 RUN npm ci --only=production
@@ -24,8 +26,15 @@ RUN addgroup -g 1001 -S nodejs && \
 # Copy dependencies from builder
 COPY --from=builder /app/node_modules ./node_modules
 
-# Copy application files
-COPY --chown=nodejs:nodejs . .
+# Copy application files from beta/node
+COPY --chown=nodejs:nodejs beta/node/*.js ./
+COPY --chown=nodejs:nodejs beta/node/.env* ./
+
+# Copy static files from beta/ directory
+COPY --chown=nodejs:nodejs beta/vistas/ ./vistas/
+COPY --chown=nodejs:nodejs beta/css/ ./css/
+COPY --chown=nodejs:nodejs beta/js/ ./js/
+COPY --chown=nodejs:nodejs beta/img/ ./img/
 
 # Switch to non-root user
 USER nodejs
@@ -35,7 +44,7 @@ EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/api/generos', (r) => {process.exit(r.statusCode === 404 ? 0 : 1)})"
+  CMD node -e "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
 # Start the application
 CMD ["node", "server.js"]

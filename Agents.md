@@ -147,7 +147,20 @@ https://digital-digital-noticieroia.owolqd.easypanel.host
 
 ## 🔄 Cambios Recientes
 
-### 2024-01-XX - Fix despliegue EasyPanel
+### 2024-01-XX - Fix rutas de archivos estáticos (segundo intento)
+
+**Problema**: Después del primer fix, la aplicación aún no mostraba las páginas HTML tras el despliegue.
+
+**Causa**: Las rutas en `server.js` usaban `../` (directorio padre) cuando debían usar `./` (directorio actual), ya que todos los archivos están copiados en `/app/` dentro del contenedor.
+
+**Solución aplicada**:
+1. ✅ Cambiadas todas las rutas de `../` a `./` en `server.js`
+2. ✅ Agregado manejo de errores con callbacks en `res.sendFile()`
+3. ✅ Agregados logs de depuración para identificar problemas
+4. ✅ Agregado middleware 404 para rutas no encontradas
+5. ✅ Agregados logs del directorio de trabajo y rutas de archivos estáticos al iniciar
+
+### 2024-01-XX - Fix despliegue EasyPanel (primer intento)
 
 1. **server.js**:
    - Agregado middleware para servir archivos estáticos

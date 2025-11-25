@@ -29,10 +29,19 @@ COPY --chown=nodejs:nodejs beta/node/*.js ./
 COPY --chown=nodejs:nodejs beta/node/.env* ./
 
 # Copy static files (HTML, CSS, JS, images) maintaining beta/ structure
-COPY --chown=nodejs:nodejs beta/vistas ./vistas
-COPY --chown=nodejs:nodejs beta/css ./css
-COPY --chown=nodejs:nodejs beta/js ./js
-COPY --chown=nodejs:nodejs beta/img ./img
+# Usar --recursive o copiar directorios completos
+COPY --chown=nodejs:nodejs beta/vistas/ ./vistas/
+COPY --chown=nodejs:nodejs beta/css/ ./css/
+COPY --chown=nodejs:nodejs beta/js/ ./js/
+COPY --chown=nodejs:nodejs beta/img/ ./img/
+
+# Verificar que los archivos se copiaron (debug) - ANTES de cambiar de usuario
+RUN ls -la /app/ && \
+    ls -la /app/vistas 2>/dev/null || echo "WARNING: vistas directory not found" && \
+    ls -la /app/css 2>/dev/null || echo "WARNING: css directory not found" && \
+    ls -la /app/img 2>/dev/null || echo "WARNING: img directory not found" && \
+    echo "=== Verificación de archivos HTML ===" && \
+    ls -la /app/vistas/*.html 2>/dev/null || echo "WARNING: No HTML files found"
 
 # Switch to non-root user
 USER nodejs
