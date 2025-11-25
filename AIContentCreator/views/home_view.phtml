@@ -62,9 +62,9 @@
                             <h3><?= htmlspecialchars($row['tema']) ?></h3>
 
                             <form method="POST" action="<?= BASE_URL ?>controllers/eliminar_genero.php" class="delete-form">
-                                <input type="hidden" name="id" value="<?= (int)$row['id_genero'] ?>">
+                                <input type="hidden" name="id" value="<?= (int) $row['id_genero'] ?>">
                                 <button type="submit" class="btn btn-delete"
-                                        onclick="return confirm('¿Seguro que deseas eliminar este género?');">
+                                    onclick="return confirm('¿Seguro que deseas eliminar este género?');">
                                     Eliminar
                                 </button>
                             </form>
@@ -73,13 +73,17 @@
                         <p><?= htmlspecialchars($row['descripcion']) ?></p>
                         <p>
                             <?= htmlspecialchars($row['frecuencia']) ?>
-                            • <?= (int)$row['cantidad'] ?>
+                            • <?= (int) $row['cantidad'] ?>
                             • <?= strtoupper(htmlspecialchars($row['idioma'])) ?>
                         </p>
 
-                        <a href="index.php?controller=noticias&id_genero=<?= (int)$row['id_genero'] ?>">
-                             Ir a artículos →
-                        </a>
+<form method="POST" action="<?= BASE_URL ?>controllers/generar_articulos.php" style="display:inline;">
+    <input type="hidden" name="id_genero" value="<?= (int)$row['id_genero'] ?>">
+    <button type="submit" class="btn-link">
+        Ir a artículos →
+    </button>
+</form>
+
 
                     </article>
                 <?php endforeach; ?>
@@ -184,4 +188,5 @@
     <script src="<?= BASE_URL ?>code/generos.js"></script>
 
 </body>
+
 </html>

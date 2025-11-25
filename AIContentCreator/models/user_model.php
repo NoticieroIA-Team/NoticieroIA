@@ -2,74 +2,71 @@
 // conectamos con la BD
 require_once __DIR__ . "/../db/db.php";
 
-use MongoDB\Driver\Exception\BulkWriteException;
-
 class user_model
 {
-    private $db;          // MongoDB\Database
-    private $collection;  // MongoDB\Collection
+    /** @var PDO */
+    private $pdo;
 
     public function __construct()
     {
-        // Ahora conectar() devuelve una MongoDB\Database
-        $this->db = Database::conectar();
-        $this->collection = $this->db->selectCollection('users');
-    }
+        // Ahora conectar() devuelve un PDO (MySQL)
+        $this->pdo = Database::conectar();
 
-    /**
-     * Convierte un BSONDocument a array asociativo PHP
-     */
-    private function docToArray($doc): array
-    {
-        // Forma simple y segura
-        return json_decode(json_encode($doc), true);
+        if (!$this->pdo) {
+            throw new Exception("Error de conexión a la base de datos.");
+        }
     }
 
     public function buscarPorEmail($email)
     {
-        $doc = $this->collection->findOne(['email' => $email]);
+        $sql = "SELECT * FROM users WHERE email = :email LIMIT 1";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':email' => $email]);
 
-        return $doc ? $this->docToArray($doc) : null;
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
     }
 
     public function buscarPorDNI($dni)
     {
-        $doc = $this->collection->findOne(['dni' => $dni]);
+        $sql = "SELECT * FROM users WHERE dni = :dni LIMIT 1";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':dni' => $dni]);
 
-        return $doc ? $this->docToArray($doc) : null;
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
     }
 
     public function registrar($dni, $nombre, $apellidos, $numero_empresa, $email, $password)
     {
         $hash = password_hash($password, PASSWORD_DEFAULT);
 
-        $documento = [
-            'dni'            => (string)$dni,
-            'nombre'         => (string)$nombre,
-            'apellidos'      => (string)$apellidos,
-            'numero_empresa' => (int)$numero_empresa,
-            'email'          => (string)$email,
-            'password'       => (string)$hash,
-        ];
+        $sql = "INSERT INTO users 
+                    (dni, nombre, apellidos, numero_empresa, email, password)
+                VALUES 
+                    (:dni, :nombre, :apellidos, :numero_empresa, :email, :password)";
 
         try {
-            $resultado = $this->collection->insertOne($documento);
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
+                ':dni'            => (string)$dni,
+                ':nombre'         => (string)$nombre,
+                ':apellidos'      => (string)$apellidos,
+                ':numero_empresa' => (int)$numero_empresa,
+                ':email'          => (string)$email,
+                ':password'       => (string)$hash,
+            ]);
 
-            return $resultado->getInsertedCount() === 1;
-        } catch (BulkWriteException $e) {
-            // 11000 = duplicate key error en MongoDB
-            $writeResult = $e->getWriteResult();
-            foreach ($writeResult->getWriteErrors() as $err) {
-                if ($err->getCode() === 11000) {
-                    return "duplicate";
-                }
+            return true;
+        } catch (PDOException $e) {
+            // 23000 = violación de restricción (p.ej. UNIQUE)
+            if ($e->getCode() === '23000') {
+                // Asumimos clave única en email o dni
+                return "duplicate";
             }
-            return false;
-        } catch (\Throwable $e) {
-            // Cualquier otro error
-            error_log('Error al registrar usuario en MongoDB: ' . $e->getMessage());
+
+            error_log('Error al registrar usuario en MySQL: ' . $e->getMessage());
             return false;
         }
     }
 }
-?>

@@ -1,65 +1,61 @@
 <?php
 // controllers/articulos_controller.php
 
-session_start();
-
-if (!isset($_SESSION['usuario'])) {
-    header("Location: index.php?controller=start");
-    exit;
-}
-
-$usuario = $_SESSION['usuario'];
-
 require_once __DIR__ . '/../db/db.php';
 
 $pdo = Database::conectar();
 
-// Leer id_genero desde la URL
-$id_genero = isset($_GET['id_genero']) ? (int)$_GET['id_genero'] : 0;
-if ($id_genero <= 0) {
-    die("Género inválido.");
+$idGenero = isset($_GET['id_genero']) ? (int) $_GET['id_genero'] : 0;
+
+if ($idGenero <= 0) {
+    die('id_genero no válido');
 }
 
-// 1) Obtenemos datos del género (para mostrar el tema en la cabecera)
-$sqlGenero = "SELECT id_genero, tema, descripcion 
-              FROM planificacioncontenido
-              WHERE id_genero = :id_genero";
+// 1) Llamar al webhook de n8n para pedir artículos
+// ⚠️ IMPORTANTE: Sustituye ESTA URL por la Production URL completa de tu Webhook1 en n8n
+$webhookUrl = 'https://digital-n8n.owolqd.easypanel.host/webhook/from-php-noticiero';
 
-$stmtGenero = $pdo->prepare($sqlGenero);
-$stmtGenero->execute([':id_genero' => $id_genero]);
-$genero = $stmtGenero->fetch(PDO::FETCH_ASSOC);
+$payload = [
+    'tipo_llamada' => 'articulos',
+    'id_genero'    => $idGenero,
+];
 
-if (!$genero) {
-    die("No se encontró el género seleccionado.");
+$ch = curl_init($webhookUrl);
+curl_setopt_array($ch, [
+    CURLOPT_POST           => true,
+    CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
+    CURLOPT_POSTFIELDS     => json_encode($payload),
+    CURLOPT_RETURNTRANSFER => true,
+]);
+
+// Ejecutar la petición
+$response = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$curlError = curl_error($ch);
+curl_close($ch);
+
+// 📌 BLOQUE DE DEPURACIÓN — MUESTRA EL ERROR REAL
+if ($httpCode !== 200 || $response === false) {
+    echo "<pre>";
+    echo "ERROR al llamar a n8n\n\n";
+    echo "URL usada: $webhookUrl\n\n";
+    echo "HTTP CODE: $httpCode\n\n";
+    echo "cURL ERROR: $curlError\n\n";
+    echo "RESPUESTA RAW:\n";
+    var_dump($response);
+    echo "</pre>";
+    exit;
 }
 
-// 2) Obtenemos todas las noticias asociadas a ese género
-$sqlNoticias = "SELECT 
-                    id,
-                    id_genero,
-                    titulo,
-                    descripcion,
-                    imagen,
-                    noticia_revisada,
-                    imagen_revisada,
-                    publicado,
-                    fecha_publicacion,
-                    fecha_creacion
-                FROM noticias
-                WHERE id_genero = :id_genero
-                ORDER BY id DESC";
+// Si OK, decodificar JSON normalmente
+$data = json_decode($response, true);
+$noticias = $data['noticias'] ?? [];
 
-$stmtNoticias = $pdo->prepare($sqlNoticias);
-$stmtNoticias->execute([':id_genero' => $id_genero]);
-$noticias = $stmtNoticias->fetchAll(PDO::FETCH_ASSOC);
+// 3) Montar la estructura $genero para la vista
+$genero = [
+    'tema'        => 'Género ' . $idGenero,
+    'descripcion' => 'Artículos generados desde n8n para este género.',
+];
 
-// Normalizamos estados a minúsculas (para que cuadren con los <option value="pendiente"... etc.)
-foreach ($noticias as &$n) {
-    $n['noticia_revisada'] = $n['noticia_revisada'] !== null ? strtolower(trim($n['noticia_revisada'])) : null;
-    $n['imagen_revisada']  = $n['imagen_revisada']  !== null ? strtolower(trim($n['imagen_revisada']))  : null;
-    $n['publicado']        = $n['publicado']        !== null ? strtolower(trim($n['publicado']))        : null;
-}
-unset($n);
-
-// Cargar la vista específica por género
+// 4) Cargar la vista
 require __DIR__ . '/../views/articulos_view.phtml';

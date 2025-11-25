@@ -25,10 +25,13 @@ if (!$pdo) {
 // --------------------------------------------
 $tema        = isset($_POST['tema']) ? trim($_POST['tema']) : null;
 $descripcion = isset($_POST['descripcion']) ? trim($_POST['descripcion']) : null;
-$frecuencia  = isset($_POST['frecuencia']) ? trim($_POST['frecuencia']) : null;   // ← CORREGIDO
+$frecuencia  = isset($_POST['frecuencia']) ? trim($_POST['frecuencia']) : null;
 $cantidad    = isset($_POST['cantidad']) ? intval($_POST['cantidad']) : null;
 $addSources  = isset($_POST['addSources']) ? trim($_POST['addSources']) : 'no';
 $idioma      = isset($_POST['idioma']) ? trim($_POST['idioma']) : null;
+
+// NUEVO: tipo de llamada para el switch del webhook
+$tipo_llamada = 'genero';
 
 // En el formulario el hidden se llama "fuentes"
 $sources = isset($_POST['fuentes']) && $_POST['fuentes'] !== '' ? $_POST['fuentes'] : null;
@@ -53,22 +56,24 @@ if ($sources !== null) {
 
 // --------------------------------------------
 // INSERTAR EN LA BD (PDO)
+// + columna tipo_llamada
 // --------------------------------------------
 $sql = "INSERT INTO planificacioncontenido 
-        (tema, descripcion, frecuencia, cantidad, addSources, idioma, sources)
-        VALUES (:tema, :descripcion, :frecuencia, :cantidad, :addSources, :idioma, :sources)";
+        (tema, descripcion, frecuencia, cantidad, addSources, idioma, sources, tipo_llamada)
+        VALUES (:tema, :descripcion, :frecuencia, :cantidad, :addSources, :idioma, :sources, :tipo_llamada)";
 
 try {
     $stmt = $pdo->prepare($sql);
 
     $stmt->execute([
-        ':tema'        => $tema,
-        ':descripcion' => $descripcion,
-        ':frecuencia'  => $frecuencia,
-        ':cantidad'    => $cantidad,
-        ':addSources'  => $addSources,
-        ':idioma'      => $idioma,
-        ':sources'     => $sources
+        ':tema'         => $tema,
+        ':descripcion'  => $descripcion,
+        ':frecuencia'   => $frecuencia,
+        ':cantidad'     => $cantidad,
+        ':addSources'   => $addSources,
+        ':idioma'       => $idioma,
+        ':sources'      => $sources,
+        ':tipo_llamada' => $tipo_llamada
     ]);
 } catch (PDOException $e) {
     die("Error al insertar: " . $e->getMessage());
@@ -81,20 +86,24 @@ $id_genero = $pdo->lastInsertId();
 
 // --------------------------------------------
 // ENVIAR GÉNERO A N8N
+// Webhook ÚNICO + tipo_llamada
 // --------------------------------------------
 $payload = [
-    'id_genero'   => (int)$id_genero,
-    'tema'        => $tema,
-    'descripcion' => $descripcion,
-    'frecuencia'  => $frecuencia,
-    'cantidad'    => $cantidad,
-    'addSources'  => $addSources,
-    'idioma'      => $idioma,
-    'sources'     => $sources,
-    'created_at'  => date('Y-m-d H:i:s'),
+    'tipo_llamada' => $tipo_llamada,   // ← CLAVE PARA EL SWITCH EN N8N
+    'id_genero'    => (int)$id_genero,
+    'tema'         => $tema,
+    'descripcion'  => $descripcion,
+    'frecuencia'   => $frecuencia,
+    'cantidad'     => $cantidad,
+    'addSources'   => $addSources,
+    'idioma'       => $idioma,
+    'sources'      => $sources,
+    'created_at'   => date('Y-m-d H:i:s'),
 ];
 
-$n8n_url = 'https://digital-n8n.owolqd.easypanel.host/webhook-test/from-php-generos';
+// PON AQUÍ EL WEBHOOK ÚNICO QUE USARÁS PARA TODO
+// (cámbialo también en el controlador de artículos)
+$n8n_url = 'https://digital-n8n.owolqd.easypanel.host/webhook-test/from-php-noticiero';
 
 $ch = curl_init($n8n_url);
 curl_setopt($ch, CURLOPT_POST, true);

@@ -48,8 +48,8 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
     // Normalizar estados a minúsculas
     $row['noticia_revisada'] = $row['noticia_revisada'] !== null ? strtolower($row['noticia_revisada']) : null;
-    $row['imagen_revisada']  = $row['imagen_revisada']  !== null ? strtolower($row['imagen_revisada'])  : null;
-    $row['publicado']        = $row['publicado']        !== null ? strtolower($row['publicado'])        : null;
+    $row['imagen_revisada'] = $row['imagen_revisada'] !== null ? strtolower($row['imagen_revisada']) : null;
+    $row['publicado'] = $row['publicado'] !== null ? strtolower($row['publicado']) : null;
 
     if ($generoTema === null && !empty($row['genero_tema'])) {
         $generoTema = $row['genero_tema'];
@@ -85,7 +85,7 @@ class ArrayResult
 $result = new ArrayResult($noticias);
 
 // variable auxiliar para la vista
-$__idGenero   = $idGenero;
+$__idGenero = $idGenero;
 $__generoTema = $generoTema;
 
 // -----------------------------
