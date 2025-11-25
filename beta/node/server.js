@@ -12,27 +12,52 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());           // Permite solicitudes desde cualquier origen
 app.use(bodyParser.json()); // Permite leer JSON del body
 
-// Servir archivos estáticos
-app.use('/css', express.static(path.join(__dirname, '../css')));
-app.use('/js', express.static(path.join(__dirname, '../js')));
-app.use('/img', express.static(path.join(__dirname, '../img')));
-app.use('/vistas', express.static(path.join(__dirname, '../vistas')));
+// Servir archivos estáticos (desde /app ya que server.js está en /app)
+app.use('/css', express.static(path.join(__dirname, './css')));
+app.use('/js', express.static(path.join(__dirname, './js')));
+app.use('/img', express.static(path.join(__dirname, './img')));
+app.use('/vistas', express.static(path.join(__dirname, './vistas')));
 
 // Rutas para las vistas HTML
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../vistas/login.html'));
+  const filePath = path.join(__dirname, './vistas/login.html');
+  console.log('Serving login.html from:', filePath);
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      console.error('Error serving login.html:', err);
+      res.status(500).send('Error loading page');
+    }
+  });
 });
 
 app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, '../vistas/login.html'));
+  const filePath = path.join(__dirname, './vistas/login.html');
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      console.error('Error serving login.html:', err);
+      res.status(500).send('Error loading page');
+    }
+  });
 });
 
 app.get('/home', (req, res) => {
-  res.sendFile(path.join(__dirname, '../vistas/home.html'));
+  const filePath = path.join(__dirname, './vistas/home.html');
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      console.error('Error serving home.html:', err);
+      res.status(500).send('Error loading page');
+    }
+  });
 });
 
 app.get('/articulos', (req, res) => {
-  res.sendFile(path.join(__dirname, '../vistas/articulos.html'));
+  const filePath = path.join(__dirname, './vistas/articulos.html');
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      console.error('Error serving articulos.html:', err);
+      res.status(500).send('Error loading page');
+    }
+  });
 });
 
 // API Info endpoint
@@ -74,9 +99,21 @@ app.post('/api/generos', async (req, res) => {
   }
 });
 
+// Middleware para manejar 404
+app.use((req, res) => {
+  console.log(`❌ Ruta no encontrada: ${req.method} ${req.url}`);
+  res.status(404).json({ error: 'Ruta no encontrada', path: req.url });
+});
+
 // Start server on 0.0.0.0 to be accessible from outside the container
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Servidor corriendo en http://0.0.0.0:${PORT}`);
+  console.log(`📂 Directorio de trabajo: ${__dirname}`);
+  console.log(`📂 Rutas de archivos estáticos:`);
+  console.log(`   CSS: ${path.join(__dirname, './css')}`);
+  console.log(`   JS: ${path.join(__dirname, './js')}`);
+  console.log(`   Imágenes: ${path.join(__dirname, './img')}`);
+  console.log(`   Vistas: ${path.join(__dirname, './vistas')}`);
   console.log(`📍 Páginas disponibles:`);
   console.log(`   GET  / - Login`);
   console.log(`   GET  /home - Home`);
