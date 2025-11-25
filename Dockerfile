@@ -9,7 +9,7 @@ WORKDIR /app
 COPY beta/node/package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm install --production
 
 # Stage 2: Production stage
 FROM node:20-alpine
@@ -19,7 +19,7 @@ WORKDIR /app
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
+  adduser -S nodejs -u 1001
 
 # Copy dependencies from builder
 COPY --from=builder /app/node_modules ./node_modules
