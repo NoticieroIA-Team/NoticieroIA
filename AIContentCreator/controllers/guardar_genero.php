@@ -61,7 +61,7 @@ if ($sources !== null) {
 // --------------------------------------------
 // INSERTAR EN LA BD (MYSQLI PREPARED STATEMENT)
 // --------------------------------------------
-// OJO: aquí la columna se llama `sources` (como en tu BBDD)
+// OJO: la columna PK es id_genero (AUTO_INCREMENT), pero no hace falta incluirla en el INSERT
 $query = "INSERT INTO planificacioncontenido 
           (tema, descripcion, frecuencia, cantidad, addSources, idioma, sources)
           VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -93,13 +93,19 @@ if (!$stmt->execute()) {
     die("Error al insertar: " . $error);
 }
 
+// --------------------------------------------
+// OBTENER id_genero RECIÉN INSERTADO
+// --------------------------------------------
+$id_genero = $stmt->insert_id;   // <<--- AQUÍ OBTENEMOS id_genero (PK de planificacioncontenido)
+
 $stmt->close();
 $conexion->close();
 
 // --------------------------------------------
-// ENVIAR GÉNERO A N8N
+// ENVIAR GÉNERO A N8N (incluyendo id_genero)
 // --------------------------------------------
 $payload = [
+    'id_genero'   => $id_genero,                 // <<--- ENVIAMOS id_genero A N8N
     'tema'        => $tema,
     'descripcion' => $descripcion,
     'frecuencia'  => $frecuencia,
@@ -130,7 +136,7 @@ curl_close($ch);
 
 // LOG opcional de errores hacia n8n (no rompemos la app si falla)
 if ($httpCode < 200 || $httpCode >= 300 || $curlError) {
-    error_log("Error enviando genero a n8n: HTTP $httpCode — RESPUESTA: $response — cURL: $curlError");
+    error_log("Error enviando género a n8n: HTTP $httpCode — RESPUESTA: $response — cURL: $curlError");
 }
 
 // --------------------------------------------

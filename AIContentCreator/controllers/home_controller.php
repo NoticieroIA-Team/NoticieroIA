@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-// Si no hay usuario logueado, volvemos a start
 if (!isset($_SESSION['usuario'])) {
     header("Location: index.php?controller=start");
     exit;
@@ -9,7 +8,21 @@ if (!isset($_SESSION['usuario'])) {
 
 $usuario = $_SESSION['usuario'];
 
-// Mostramos el home del usuario
-require "views/home_view.phtml";
+require_once __DIR__ . '/../db/db.php';
 
-// ------------------------------------------------------------------------
+$pdo = Database::conectar();
+
+$sql = "SELECT 
+            id_genero,
+            tema,
+            descripcion,
+            frecuencia,
+            cantidad,
+            idioma
+        FROM planificacioncontenido
+        ORDER BY id_genero DESC";
+
+$stmt = $pdo->query($sql);
+$generos = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
+
+require "views/home_view.phtml";

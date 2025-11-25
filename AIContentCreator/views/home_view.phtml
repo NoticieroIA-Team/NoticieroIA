@@ -6,10 +6,6 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <title>Home - AI Content Creator</title>
 
-    <!-- CSS DEL HOME -->
-     <!-- HOLA RUBEN -->
-           <!-- HOLA RUBEN -->
-
     <link rel="stylesheet" href="<?= BASE_URL ?>styles/home.css">
 </head>
 
@@ -18,10 +14,9 @@
     <!-- HEADER -->
     <header>AI CONTENT CREATOR</header>
 
-    <!-- LAYOUT PRINCIPAL -->
     <div class="layout">
 
-        <!-- ASIDE CON INFO USUARIO -->
+        <!-- ASIDE -->
         <aside>
             <div>
                 <div class="user-avatar">
@@ -45,7 +40,7 @@
                 <nav class="aside-menu" style="margin-top:25px;">
                     <ul>
                         <li><a class="active" href="#"><span>🏠</span> Inicio</a></li>
-<li><a href="index.php?controller=noticias"><span>📝</span> Noticias</a></li>
+                        <li><a href="index.php?controller=noticias"><span>📝</span> Noticias</a></li>
                         <li><a href="#"><span>🎛️</span> Preferencias</a></li>
                         <li><a href="#"><span>⚙️</span> Ajustes</a></li>
                         <li><a href="#"><span>❓</span> Ayuda</a></li>
@@ -56,32 +51,20 @@
         </aside>
 
         <!-- MAIN -->
-        <?php
-        require_once __DIR__ . '/../db/db.php';
-
-        $conexion = Database::conectar();
-
-        $sql = "SELECT id, tema, descripcion, frecuencia, cantidad, idioma 
-        FROM planificacioncontenido
-        ORDER BY id DESC";
-
-        $result = $conexion->query($sql);
-        ?>
-
         <main>
             <h1 class="page-title">Géneros</h1>
             <p class="page-sub">Selecciona una categoría para continuar</p>
 
-            <?php if ($result && $result->num_rows > 0): ?>
-                <?php while ($row = $result->fetch_assoc()): ?>
+            <?php if (!empty($generos)): ?>
+                <?php foreach ($generos as $row): ?>
                     <article class="card">
                         <div class="card-header">
                             <h3><?= htmlspecialchars($row['tema']) ?></h3>
 
                             <form method="POST" action="<?= BASE_URL ?>controllers/eliminar_genero.php" class="delete-form">
-                                <input type="hidden" name="id" value="<?= $row['id'] ?>">
+<input type="hidden" name="id" value="<?= (int)$row['id_genero'] ?>">
                                 <button type="submit" class="btn btn-delete"
-                                    onclick="return confirm('¿Seguro que deseas eliminar este género?');">
+                                        onclick="return confirm('¿Seguro que deseas eliminar este género?');">
                                     Eliminar
                                 </button>
                             </form>
@@ -90,33 +73,29 @@
                         <p><?= htmlspecialchars($row['descripcion']) ?></p>
                         <p>
                             <?= htmlspecialchars($row['frecuencia']) ?>
-                            • <?= (int) $row['cantidad'] ?>
+                            • <?= (int)$row['cantidad'] ?>
                             • <?= strtoupper(htmlspecialchars($row['idioma'])) ?>
                         </p>
 
-                        <a href="articulos.html">Ir a artículos →</a>
+<a href="index.php?controller=articulos&id_genero=<?= (int)$row['id_genero'] ?>">
+    Ir a artículos →
+</a>
                     </article>
-                <?php endwhile; ?>
+                <?php endforeach; ?>
             <?php else: ?>
                 <p>No hay géneros todavía. Crea uno con el botón “+”.</p>
             <?php endif; ?>
 
         </main>
 
-        <?php
-        $conexion->close();
-        ?>
     </div>
 
-    <!-- FOOTER -->
     <footer>
         © 2025 AI Content Creator - Todos los derechos reservados
     </footer>
 
-    <!-- BOTÓN FLOTANTE -->
     <button id="fabAdd" class="fab" aria-label="Añadir Género" title="Añadir Género">+</button>
 
-    <!-- MODAL NUEVO GÉNERO -->
     <div id="modalBackdrop" class="modal-backdrop" aria-hidden="true">
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
             <div class="modal-header">
@@ -129,14 +108,14 @@
 
                     <div>
                         <label for="tema">Tema</label>
-                        <input type="text" id="tema" name="tema" required placeholder="Ej: Tendencias de IA">
+                        <input type="text" id="tema" name="tema" required>
                     </div>
 
                     <div>
                         <label for="descripcion">Descripción</label>
-                        <input type="text" id="descripcion" name="descripcion" required
-                            placeholder="Ej: La IA avanza rápidamente">
+                        <input type="text" id="descripcion" name="descripcion" required>
                     </div>
+
                     <div>
                         <label for="frecuencia">Frecuencia</label>
                         <select id="frecuencia" name="frecuencia" required>
@@ -149,16 +128,7 @@
 
                     <div>
                         <label for="cantidad">Cantidad</label>
-                        <input type="number" id="cantidad" name="cantidad" required min="1" max="100"
-                            placeholder="Ej: 10">
-                    </div>
-
-                    <div id="addSourcesContainer">
-                        <label for="addSources">¿Añadir Fuentes?</label>
-                        <select id="addSources" name="addSources">
-                            <option value="no" selected>No</option>
-                            <option value="si">Sí</option>
-                        </select>
+                        <input type="number" id="cantidad" name="cantidad" min="1" required>
                     </div>
 
                     <div>
@@ -177,9 +147,7 @@
                         <button type="button" class="btn add-source" id="btnAddSource">+ Añadir fuente</button>
                     </div>
 
-                    <!-- Campo oculto donde guardaremos las fuentes en JSON -->
                     <input type="hidden" id="fuentes" name="fuentes">
-
                 </div>
 
                 <div class="modal-footer">
@@ -194,5 +162,4 @@
     <script src="<?= BASE_URL ?>code/generos.js"></script>
 
 </body>
-
 </html>

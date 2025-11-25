@@ -1,34 +1,35 @@
 <?php
 
-require __DIR__ . '/../../vendor/autoload.php';   // carga Composer
-use MongoDB\Client;
-
 class Database {
 
     public static function conectar()
     {
-        // Cargar variables de entorno (.env)
-        if (file_exists(__DIR__ . '/../../.env')) {
-            $env = parse_ini_file(__DIR__ . '/../../.env');
+        // Leer .env de la raíz del proyecto
+        if (file_exists(__DIR__ . '/../.env')) {
+            $env = parse_ini_file(__DIR__ . '/../.env');
+        } else {
+            $env = [];
         }
 
-        // Si usas otro sistema de carga de .env, adapta esta línea:
-        $uri = $env['MONGO_URI'] ?? getenv('MONGO_URI');
-
-        if (!$uri) {
-            die("Error: No se encontró la variable MONGO_URI en el .env");
-        }
+        $host   = $env['DB_HOST'] ?? 'localhost';
+        $dbname = $env['DB_NAME'] ?? 'AIContentCreator';
+        $user   = $env['DB_USER'] ?? 'root';
+        $pass   = $env['DB_PASS'] ?? '';
 
         try {
-            // Crear cliente MongoDB
-            $client = new Client($uri);
+            $dsn = 'mysql:host=' . $host . ';dbname=' . $dbname . ';charset=utf8mb4';
 
-            // Seleccionar base de datos (igual que en Node.js)
-            return $client->selectDatabase('AIContentCreator');
+            $opciones = [
+                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            ];
 
-        } catch (Exception $e) {
-            die("Error de conexión a MongoDB: " . $e->getMessage());
+            $pdo = new PDO($dsn, $user, $pass, $opciones);
+
+            return $pdo;
+
+        } catch (PDOException $e) {
+            die('Error de conexión a MySQL: ' . $e->getMessage());
         }
     }
 }
-    //  <!-- HOLA RUBEN -->

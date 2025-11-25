@@ -9,7 +9,6 @@ require_once "db/db.php";
 
 // 🔹 URL base del proyecto (se calcula a partir de index.php)
 define('BASE_URL', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\') . '/');
-        //       <!-- HOLA RUBEN -->
 
 // Router básico
 $controller = isset($_GET['controller']) ? $_GET['controller'] : 'start';
@@ -29,6 +28,10 @@ switch ($controller) {
 
     case 'noticias':
         require_once "controllers/noticias_controller.php";
+        break;
+
+    case 'articulos':
+        require_once "controllers/articulos_controller.php";
         break;
 
     default:
