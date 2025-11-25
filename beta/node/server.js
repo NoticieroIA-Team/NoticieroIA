@@ -144,8 +144,47 @@ app.get('/test', (req, res) => {
     __dirname: __dirname,
     hostname: req.hostname,
     ip: req.ip,
-    headers: req.headers
+    url: req.url,
+    originalUrl: req.originalUrl,
+    method: req.method
   });
+});
+
+// Endpoint de diagnóstico completo
+app.get('/diagnostic', (req, res) => {
+  const fs = require('fs');
+  const diagnostic = {
+    server: {
+      status: 'running',
+      port: PORT,
+      __dirname: __dirname,
+      cwd: process.cwd()
+    },
+    request: {
+      hostname: req.hostname,
+      ip: req.ip,
+      url: req.url,
+      originalUrl: req.originalUrl,
+      method: req.method,
+      headers: {
+        host: req.headers.host,
+        'x-forwarded-for': req.headers['x-forwarded-for'],
+        'x-forwarded-proto': req.headers['x-forwarded-proto']
+      }
+    },
+    files: {
+      serverJs: fs.existsSync(path.join(__dirname, './server.js')) ? 'EXISTS' : 'NOT FOUND',
+      vistas: fs.existsSync(path.join(__dirname, './vistas')) ? 'EXISTS' : 'NOT FOUND',
+      loginHtml: fs.existsSync(path.join(__dirname, './vistas/login.html')) ? 'EXISTS' : 'NOT FOUND'
+    },
+    environment: {
+      PORT: process.env.PORT,
+      NODE_ENV: process.env.NODE_ENV,
+      MONGODB_URI: process.env.MONGODB_URI ? 'SET' : 'NOT SET'
+    }
+  };
+  
+  res.json(diagnostic);
 });
 
 // Middleware para manejar 404 - debe ir ANTES del listen
