@@ -1,4 +1,6 @@
 <?php
+// controllers/start_controller.php
+
 session_start();
 
 // Si ya hay usuario logueado, mandamos directo a home
@@ -8,5 +10,4 @@ if (isset($_SESSION['usuario'])) {
 }
 
 // Si NO hay sesión, mostramos la start view
-require "views/start_view.phtml";
-    //  <!-- HOLA RUBEN -->
+require __DIR__ . '/../views/start_view.phtml';

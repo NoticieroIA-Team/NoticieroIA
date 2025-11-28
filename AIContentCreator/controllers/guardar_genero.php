@@ -1,7 +1,7 @@
 <?php
 // controllers/guardar_genero.php
 
-require_once __DIR__ . '/../db/db.php';
+require_once __DIR__ . './../db/db.php';
 
 // --------------------------------------------
 // SOLO ACEPTAR MÉTODO POST
@@ -30,7 +30,7 @@ $cantidad    = isset($_POST['cantidad']) ? (int)$_POST['cantidad'] : null;
 $addSources  = isset($_POST['addSources']) ? trim($_POST['addSources']) : 'no';
 $idioma      = isset($_POST['idioma']) ? trim($_POST['idioma']) : null;
 
-// tipo de llamada para el switch del webhook
+// valor por defecto para la columna tipo_llamada
 $tipo_llamada = 'genero';
 
 // En el formulario el hidden se llama "fuentes"
@@ -47,15 +47,34 @@ if ($cantidad <= 0) {
     die("Error: la cantidad debe ser un número entero mayor que 0.");
 }
 
+// Validar JSON si hay fuentes
 if ($sources !== null) {
     json_decode($sources);
     if (json_last_error() !== JSON_ERROR_NONE) {
+        // si no es JSON válido, lo dejamos como NULL para no romper el CHECK(json_valid)
         $sources = null;
     }
 }
 
+// Opcional: validar que frecuencia e idioma estén dentro de los ENUM permitidos
+$frecuenciasValidas = ['Diario', 'Semanal', 'Mensual'];
+$idiomasValidos     = ['es', 'en', 'fr'];
+$addSourcesValidos  = ['si', 'no'];
+
+if (!in_array($frecuencia, $frecuenciasValidas, true)) {
+    die("Error: frecuencia no válida.");
+}
+
+if (!in_array($idioma, $idiomasValidos, true)) {
+    die("Error: idioma no válido.");
+}
+
+if (!in_array($addSources, $addSourcesValidos, true)) {
+    $addSources = 'no';
+}
+
 // --------------------------------------------
-// INSERTAR EN LA BD (PDO) + tipo_llamada
+// INSERTAR EN LA BD (PDO)
 // --------------------------------------------
 $sql = "INSERT INTO planificacioncontenido 
         (tema, descripcion, frecuencia, cantidad, addSources, idioma, sources, tipo_llamada)
@@ -74,55 +93,18 @@ try {
         ':sources'      => $sources,
         ':tipo_llamada' => $tipo_llamada,
     ]);
+
 } catch (PDOException $e) {
     die("Error al insertar: " . $e->getMessage());
 }
 
 // --------------------------------------------
-// OBTENER id_genero RECIÉN INSERTADO
+// OBTENER id_genero RECIÉN INSERTADO (por si lo necesitas)
 // --------------------------------------------
 $id_genero = $pdo->lastInsertId();
 
 // --------------------------------------------
-// ENVIAR GÉNERO A N8N (no esperamos respuesta)
-// --------------------------------------------
-$payload = [
-    'tipo_llamada' => $tipo_llamada,
-    'id_genero'    => (int)$id_genero,
-    'tema'         => $tema,
-    'descripcion'  => $descripcion,
-    'frecuencia'   => $frecuencia,
-    'cantidad'     => $cantidad,
-    'addSources'   => $addSources,
-    'idioma'       => $idioma,
-    'sources'      => $sources,
-    'created_at'   => date('Y-m-d H:i:s'),
-];
-
-// URL de PRODUCCIÓN del Webhook en n8n
-$n8n_url = 'https://digital-n8n.owolqd.easypanel.host/webhook/from-php-noticiero';
-
-$ch = curl_init($n8n_url);
-curl_setopt_array($ch, [
-    CURLOPT_POST           => true,
-    CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
-    CURLOPT_POSTFIELDS     => json_encode($payload),
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_TIMEOUT        => 20,
-]);
-
-$response  = curl_exec($ch);
-$httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-$curlError = curl_error($ch);
-curl_close($ch);
-
-// No bloqueamos al usuario si falla n8n; solo registramos el error
-if ($response === false || $curlError || $httpCode < 200 || $httpCode >= 300) {
-    error_log("[N8N] Error enviando género: HTTP $httpCode — RESPUESTA: $response — cURL: $curlError");
-}
-
-// --------------------------------------------
 // REDIRECCIÓN DESPUÉS DE INSERTAR
 // --------------------------------------------
-header("Location: ../index.php?controller=home");
+header("Location: ../index.php?controller=home&genero_creado=1");
 exit;

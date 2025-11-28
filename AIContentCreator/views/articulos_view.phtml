@@ -24,6 +24,8 @@ $temaGenero = isset($genero['tema'])
 $descGenero = isset($genero['descripcion'])
     ? $genero['descripcion']
     : 'Artículos generados para este género.';
+
+$idGeneroSafe = (int)($idGenero ?? 0);
 ?>
 
 <div class="news-header-bar">
@@ -41,13 +43,14 @@ $descGenero = isset($genero['descripcion'])
 </p>
 
 <?php if (!empty($noticias) && is_array($noticias)): ?>
+
     <table class="news-table">
         <thead>
         <tr>
             <th>Título</th>
             <th>Descripción</th>
             <th>Imagen</th>
-            <th>Estados / Guardar</th>
+            <th>Estados</th>
         </tr>
         </thead>
 
@@ -61,15 +64,14 @@ $descGenero = isset($genero['descripcion'])
             $rowId       = isset($row['id']) ? (int)$row['id'] : 0;
             $rowIdGenero = isset($row['id_genero'])
                 ? (int)$row['id_genero']
-                : (int)($idGenero ?? 0);
+                : $idGeneroSafe;
 
-            // Fecha: BBDD > n8n(createdAt) > null
-            $fechaPub = $row['fecha_publicacion']
-                ?? ($row['createdAt'] ?? null);
+            // Usamos fecha_publicacion de la BBDD
+            $fechaPub = $row['fecha_publicacion'] ?? null;
 
             $notRev = $row['noticia_revisada'] ?? null;
-            $imgRev = $row['imagen_revisada'] ?? null;
-            $pubVal = $row['publicado'] ?? null;
+            $imgRev = $row['imagen_revisada']  ?? null;
+            $pubVal = $row['publicado']        ?? null;
 
             $titulo      = $row['titulo']      ?? '';
             $descripcion = $row['descripcion'] ?? '';
@@ -108,12 +110,11 @@ $descGenero = isset($genero['descripcion'])
                     <?php endif; ?>
                 </td>
 
-                <!-- ESTADOS + GUARDAR -->
+                <!-- ESTADOS (FORM POR NOTICIA) -->
                 <td>
-                    <form method="POST"
-                          action="<?= BASE_URL ?>controllers/guardar_noticia.php"
-                          class="news-form">
+                    <form method="POST" action="<?= BASE_URL ?>controllers/guardar_noticia.php">
 
+                        <!-- Hidden IDs necesarios para el actualizador -->
                         <input type="hidden" name="id" value="<?= (int)$rowId ?>">
                         <input type="hidden" name="id_genero" value="<?= (int)$rowIdGenero ?>">
 
@@ -147,11 +148,12 @@ $descGenero = isset($genero['descripcion'])
                             </select>
                         </div>
 
-                        <button type="submit"
-                                class="btn primary btn-sm"
-                                style="margin-top:8px; margin-bottom: 8px;">
-                            Guardar
-                        </button>
+                        <div class="field-group" style="margin-top: 8px;">
+                            <button type="submit" class="btn btn-primary">
+                                💾 Guardar cambios
+                            </button>
+                        </div>
+
                     </form>
                 </td>
 
@@ -161,9 +163,10 @@ $descGenero = isset($genero['descripcion'])
     </table>
 
 <?php else: ?>
+
     <p>No hay noticias creadas todavía para este género.</p>
+
 <?php endif; ?>
 
 </body>
-
 </html>

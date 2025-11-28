@@ -1,35 +1,31 @@
 <?php
+// db/db.php
 
-class Database {
+class Database
+{
+    private static $host = 'digital_ia_content_generator';      // o 'localhost'
+    private static $port = '3306';           // o el que veas en XAMPP
+    private static $db   = 'dbgenerator';    // nombre de tu BD
+    private static $user = 'dominion';           // <- USUARIO root
+    private static $pass = 'Dominion@2411';               // <- CONTRASEÑA VACÍA en XAMPP por defecto
+    private static $charset = 'utf8mb4';
 
     public static function conectar()
     {
-        // Leer .env de la raíz del proyecto
-        if (file_exists(__DIR__ . '/../.env')) {
-            $env = parse_ini_file(__DIR__ . '/../.env');
-        } else {
-            $env = [];
-        }
-
-        $host   = $env['DB_HOST'] ?? 'localhost';
-        $dbname = $env['DB_NAME'] ?? 'AIContentCreator';
-        $user   = $env['DB_USER'] ?? 'root';
-        $pass   = $env['DB_PASS'] ?? '';
+        $dsn = "mysql:host=" . self::$host .
+               ";port=" . self::$port .
+               ";dbname=" . self::$db .
+               ";charset=" . self::$charset;
 
         try {
-            $dsn = 'mysql:host=' . $host . ';dbname=' . $dbname . ';charset=utf8mb4';
-
-            $opciones = [
+            $pdo = new PDO($dsn, self::$user, self::$pass, [
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            ];
-
-            $pdo = new PDO($dsn, $user, $pass, $opciones);
-
+            ]);
             return $pdo;
 
         } catch (PDOException $e) {
-            die('Error de conexión a MySQL: ' . $e->getMessage());
+            die("Error de conexión a la base de datos: " . $e->getMessage());
         }
     }
 }

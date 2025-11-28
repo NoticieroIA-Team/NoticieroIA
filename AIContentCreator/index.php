@@ -5,7 +5,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 // Cargar conexión BD
-require_once "db/db.php";
+require_once __DIR__ . '/db/db.php';
 
 // 🔹 URL base del proyecto (se calcula a partir de index.php)
 define('BASE_URL', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\') . '/');

@@ -2,7 +2,7 @@
 // controllers/guardar_noticia.php
 
 session_start();
-require_once __DIR__ . '/../db/db.php';
+require_once __DIR__ . './../db/db.php';
 
 // --------------------------------------------
 // SOLO ACEPTAR USUARIOS AUTENTICADOS
@@ -21,14 +21,14 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // --------------------------------------------
-// ID de la noticia
+// ID de la noticia (obligatorio)
 // --------------------------------------------
 $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
 if ($id <= 0) {
     die("ID inválido");
 }
 
-// id_genero (opcional, para saber si venimos de la vista por género)
+// id_genero (opcional, para redirigir de vuelta a artículos por género)
 $id_genero = isset($_POST['id_genero']) ? (int)$_POST['id_genero'] : 0;
 
 // --------------------------------------------
@@ -84,11 +84,7 @@ if ($publicado === 'publicado') {
 }
 
 // --------------------------------------------
-// 2) Actualizar valores con lógica tipo COALESCE
-// noticia_revisada  = COALESCE(:noticia_revisada, noticia_revisada)
-// imagen_revisada   = COALESCE(:imagen_revisada, imagen_revisada)
-// publicado         = COALESCE(:publicado, publicado)
-// fecha_publicacion = :fecha_publicacion (siempre según la lógica anterior)
+// 2) Actualizar valores (solo flags + fecha)
 // --------------------------------------------
 $sqlUpdate = "
     UPDATE noticias

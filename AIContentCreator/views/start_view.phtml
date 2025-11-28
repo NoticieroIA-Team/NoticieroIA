@@ -4,42 +4,44 @@
 <head>
     <meta charset="UTF-8">
     <title>Bienvenido - AI Content Creator</title>
-    <link rel="stylesheet" href="./styles/start.css">
-    <link rel="stylesheet" href="./styles/styles.css">
+
+    <link rel="stylesheet" href="<?= BASE_URL ?>styles/start.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>styles/styles.css">
 </head>
 
 <body>
 
-    <header>
-        AI CONTENT CREATOR
-    </header>
+<header>
+    AI CONTENT CREATOR
+</header>
 
-    <main>
-        <div class="login-card">
+<main>
+    <div class="login-card">
 
-            <div class="logo">
-                <img src="./img/logo.jpg" alt="Logo" />
-            </div>
-
-            <h2>Bienvenido</h2>
-
-            <p style="margin-bottom: 18px; font-size:14px; color:#444;">
-                Crea contenido inteligente, automatiza procesos y gestiona tus artículos con la potencia de <br> AI
-                CONTENT CREATOR.
-            </p>
-
-            <div class="button-group">
-                <a href="index.php?controller=auth&action=login">Iniciar sesión</a>
-                <a href="index.php?controller=auth&action=register">Crear cuenta</a>
-            </div>
+        <div class="logo">
+            <img src="<?= BASE_URL ?>img/logo.jpg" alt="Logo" />
         </div>
-    </main>
 
-    <footer>
-        © 2025 AI Content Creator - Todos los derechos reservados
-    </footer>
-           <!-- HOLA RUBEN -->
+        <h2>Bienvenido</h2>
+
+        <p style="margin-bottom: 18px; font-size:14px; color:#444;">
+            Crea contenido inteligente, automatiza procesos y gestiona tus artículos<br>
+            con la potencia de <strong>AI CONTENT CREATOR</strong>.
+        </p>
+
+        <div class="button-group">
+            <a href="<?= BASE_URL ?>index.php?controller=auth&action=login">Iniciar sesión</a>
+            <a href="<?= BASE_URL ?>index.php?controller=auth&action=register">Crear cuenta</a>
+        </div>
+
+    </div>
+</main>
+
+<footer>
+    © 2025 AI Content Creator - Todos los derechos reservados
+</footer>
+
+<!-- HOLA RUBEN -->
 
 </body>
-
 </html>

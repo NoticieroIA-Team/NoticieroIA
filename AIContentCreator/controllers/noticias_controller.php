@@ -1,9 +1,22 @@
 <?php
 // controllers/noticias_controller.php
 
-require_once __DIR__ . '/../db/db.php';
+session_start();
+
+if (!isset($_SESSION['usuario'])) {
+    header("Location: index.php?controller=start");
+    exit;
+}
+
+$usuario = $_SESSION['usuario'];
+
+require_once __DIR__ . './../db/db.php';
 
 $pdo = Database::conectar();
+
+if (!$pdo) {
+    die("Error de conexión a la base de datos.");
+}
 
 // -----------------------------
 // Filtro por género (opcional)
@@ -48,8 +61,8 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
     // Normalizar estados a minúsculas
     $row['noticia_revisada'] = $row['noticia_revisada'] !== null ? strtolower($row['noticia_revisada']) : null;
-    $row['imagen_revisada'] = $row['imagen_revisada'] !== null ? strtolower($row['imagen_revisada']) : null;
-    $row['publicado'] = $row['publicado'] !== null ? strtolower($row['publicado']) : null;
+    $row['imagen_revisada']  = $row['imagen_revisada']  !== null ? strtolower($row['imagen_revisada'])  : null;
+    $row['publicado']        = $row['publicado']        !== null ? strtolower($row['publicado'])        : null;
 
     if ($generoTema === null && !empty($row['genero_tema'])) {
         $generoTema = $row['genero_tema'];
@@ -58,35 +71,9 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $noticias[] = $row;
 }
 
-// -----------------------------
-// Adaptador tipo mysqli_result
-// -----------------------------
-class ArrayResult
-{
-    public $num_rows;
-    private $rows;
-    private $index = 0;
-
-    public function __construct(array $rows)
-    {
-        $this->rows = array_values($rows);
-        $this->num_rows = count($rows);
-    }
-
-    public function fetch_assoc()
-    {
-        if ($this->index >= $this->num_rows) {
-            return null;
-        }
-        return $this->rows[$this->index++];
-    }
-}
-
-$result = new ArrayResult($noticias);
-
-// variable auxiliar para la vista
-$__idGenero = $idGenero;
-$__generoTema = $generoTema;
+// variables auxiliares para la vista
+$__idGenero    = $idGenero;
+$__generoTema  = $generoTema;
 
 // -----------------------------
 // Cargar la vista

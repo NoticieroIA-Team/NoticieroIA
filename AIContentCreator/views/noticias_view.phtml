@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <meta charset="UTF-8">
     <title>Noticias - AI Content Creator</title>
 
     <!-- Estilos generales + específicos de noticias -->
@@ -40,7 +38,7 @@
     <?php endif; ?>
 
     <main>
-        <?php if ($result && $result->num_rows > 0): ?>
+        <?php if (!empty($noticias) && is_array($noticias)): ?>
             <table class="news-table">
                 <thead>
                     <tr>
@@ -52,7 +50,7 @@
                 </thead>
 
                 <tbody>
-                    <?php while ($row = $result->fetch_assoc()): ?>
+                    <?php foreach ($noticias as $row): ?>
                         <?php
                             $notRev = $row['noticia_revisada'] ?? null;   // 'pendiente' / 'revisada' / null
                             $imgRev = $row['imagen_revisada'] ?? null;    // 'pendiente' / 'aprobada' / null
@@ -115,7 +113,7 @@
                                                 Pendiente
                                             </option>
                                             <option value="revisada" <?= ($notRev === 'revisada') ? 'selected' : '' ?>>
-                                                Revisada
+                                            Revisada
                                             </option>
                                         </select>
                                     </div>
@@ -157,7 +155,7 @@
                             </td>
 
                         </tr>
-                    <?php endwhile; ?>
+                    <?php endforeach; ?>
                 </tbody>
             </table>
 

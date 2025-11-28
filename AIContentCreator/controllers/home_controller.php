@@ -1,4 +1,6 @@
 <?php
+// controllers/home_controller.php
+
 session_start();
 
 if (!isset($_SESSION['usuario'])) {
@@ -8,10 +10,15 @@ if (!isset($_SESSION['usuario'])) {
 
 $usuario = $_SESSION['usuario'];
 
-require_once __DIR__ . '/../db/db.php';
+require_once __DIR__ . './../db/db.php';
 
 $pdo = Database::conectar();
 
+if (!$pdo) {
+    die("Error de conexión a la base de datos.");
+}
+
+// Listar todos los géneros de planificacioncontenido
 $sql = "SELECT 
             id_genero,
             tema,
@@ -25,4 +32,5 @@ $sql = "SELECT
 $stmt = $pdo->query($sql);
 $generos = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
 
-require "views/home_view.phtml";
+// Cargar la vista principal
+require __DIR__ . '/../views/home_view.phtml';

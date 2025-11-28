@@ -1,5 +1,6 @@
 <?php
-require_once __DIR__ . '/../db/db.php';
+// actions/eliminar_genero.php
+require_once __DIR__ . './../db/db.php';
 
 // Solo permitir POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -13,18 +14,35 @@ if (!isset($_POST['id'])) {
 
 $id = intval($_POST['id']);
 
+if ($id <= 0) {
+    die("Error: ID no válido.");
+}
+
 $pdo = Database::conectar();
 
 try {
-    // Eliminar registro por id_genero
-    $stmt = $pdo->prepare("DELETE FROM planificacioncontenido WHERE id_genero = :id");
-    $stmt->execute([':id' => $id]);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->beginTransaction();
 
-    if ($stmt->rowCount() === 0) {
+    // 1) Eliminar noticias del género
+    $stmtNoticias = $pdo->prepare("DELETE FROM noticias WHERE id_genero = :id_genero");
+    $stmtNoticias->execute([':id_genero' => $id]);
+
+    // 2) Eliminar género
+    $stmtGenero = $pdo->prepare("DELETE FROM planificacioncontenido WHERE id_genero = :id");
+    $stmtGenero->execute([':id' => $id]);
+
+    if ($stmtGenero->rowCount() === 0) {
+        $pdo->rollBack();
         die("Error: no existe un registro con ese ID.");
     }
 
+    $pdo->commit();
+
 } catch (Exception $e) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     die("Error al eliminar: " . $e->getMessage());
 }
 
