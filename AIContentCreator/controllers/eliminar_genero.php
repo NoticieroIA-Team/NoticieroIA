@@ -1,6 +1,6 @@
 <?php
 // actions/eliminar_genero.php
-require_once __DIR__ . './../db/db.php';
+require_once __DIR__ . '/../db/db.php';
 
 // Solo permitir POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

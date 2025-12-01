@@ -4,9 +4,9 @@
 class Database
 {
     private static $host = 'localhost';
-    private static $db   = '';
-    private static $user = '';
-    private static $pass = '';
+    private static $db   = 'AIContentCreator';   // NOMBRE DE TU BD
+    private static $user = 'root';              // USUARIO (en XAMPP suele ser 'root')
+    private static $pass = '';                  // PASSWORD (en XAMPP por defecto suele estar vacía)
     private static $charset = 'utf8mb4';
 
     public static function conectar()
@@ -20,8 +20,8 @@ class Database
             ]);
             return $pdo;
         } catch (PDOException $e) {
-            error_log('Error de conexión: ' . $e->getMessage());
-            return null;
+            // Mejor que devolver null: paramos la ejecución con un mensaje claro
+            die('Error de conexión a la base de datos: ' . $e->getMessage());
         }
     }
 }

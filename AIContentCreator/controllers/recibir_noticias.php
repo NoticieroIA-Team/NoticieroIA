@@ -1,7 +1,7 @@
 <?php
 // controllers/recibir_noticias.php
 
-require_once __DIR__ . './../db/db.php';
+require_once __DIR__ . '/../db/db.php';
 
 header('Content-Type: application/json; charset=utf-8');
 

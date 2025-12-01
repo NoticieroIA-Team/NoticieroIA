@@ -1,7 +1,7 @@
 <?php
 // controllers/guardar_genero.php
 
-require_once __DIR__ . './../db/db.php';
+require_once __DIR__ . '/../db/db.php';
 
 // --------------------------------------------
 // SOLO ACEPTAR MÉTODO POST
