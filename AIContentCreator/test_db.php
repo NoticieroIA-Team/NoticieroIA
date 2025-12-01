@@ -1,8 +1,12 @@
 <?php
-require_once __DIR__ . '/db/db.php';
+require_once 'db/db.php';
 
-$pdo = Database::conectar();
-
-if ($pdo) {
-    echo "Conexión OK";
+echo "<pre>";
+try {
+    $pdo = Database::conectar();
+    echo "Conexión OK\n";
+} catch (Exception $e) {
+    echo "Fallo al conectar:\n";
+    echo $e->getMessage();
 }
+echo "</pre>";
