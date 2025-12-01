@@ -9,7 +9,7 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
-      - MONGODB_URI=mongodb://mongo:27017/noticieroia
+      - MONGODB_URI=mongodb://mongo:27017/AIContentCreator
     depends_on:
       - mongo
     restart: unless-stopped

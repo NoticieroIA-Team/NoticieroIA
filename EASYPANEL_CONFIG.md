@@ -18,7 +18,7 @@ Al acceder a `https://digital-digital-noticieroia.owolqd.easypanel.host`, se mue
 - **Rama**: `main`
 - **Contexto de Build** o **Root Directory**: 
   - ✅ **DEBE SER LA RAÍZ** (`.`) o vacío
-  - ❌ **NO usar** `beta/node`
+  - ❌ **NO usar** `AIContentCreator/node`
 - **Dockerfile Path**: `./Dockerfile` (el de la raíz)
 
 ### Paso 3: Configuración del Puerto
@@ -62,9 +62,9 @@ Después de corregir la configuración, prueba estos endpoints:
 
 ## ⚠️ Problema Común: Contexto de Build Incorrecto
 
-Si el **Build Context** está configurado como `beta/node`:
+Si el **Build Context** está configurado como `AIContentCreator/node`:
 
-1. El Dockerfile no podrá copiar los archivos desde `beta/vistas`, `beta/css`, etc.
+1. El Dockerfile no podrá copiar los archivos desde `AIContentCreator/vistas`, `AIContentCreator/css`, etc.
 2. El contenedor no tendrá los archivos estáticos necesarios
 3. El servidor puede iniciar pero no servirá las páginas HTML
 
