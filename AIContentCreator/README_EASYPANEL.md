@@ -3,13 +3,29 @@
 ## 🔴 Problema Detectado
 
 EasyPanel está configurado con:
-- **Directorio de ejecución**: `/AIContentCreator`
+- **Root Directory**: `/AIContentCreator`
 - **Dockerfile**: `Dockerfile.simple`
 
 Esto causa un error porque:
 1. Docker **NO puede** copiar archivos fuera del contexto de build usando `../`
 2. Los archivos de la aplicación Node.js están en `../beta/node/` (fuera del contexto)
 3. El Dockerfile necesita acceso a `beta/node/`, `beta/vistas/`, `beta/css/`, etc.
+
+## ⚡ Solución Rápida (Temporal)
+
+Si **NO puedes cambiar** el Root Directory en EasyPanel, puedes usar el script `prepare-build.sh`:
+
+1. Ejecuta el script antes del build (esto copiará los archivos necesarios a `AIContentCreator/build-files/`):
+   ```bash
+   cd AIContentCreator
+   ./prepare-build.sh
+   ```
+
+2. Luego haz commit y push de los archivos en `build-files/`
+
+3. El Dockerfile.simple usará los archivos de `build-files/` en lugar de `../beta/node/`
+
+**⚠️ NOTA**: Esta es una solución temporal. La solución correcta es cambiar el Root Directory.
 
 ## ✅ Solución: Cambiar el Contexto de Build en EasyPanel
 
