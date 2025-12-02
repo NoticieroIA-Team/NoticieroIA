@@ -1,0 +1,5 @@
+.env
+node_modules/
+vendor/
+backup_produccion_temp/
+beta/
