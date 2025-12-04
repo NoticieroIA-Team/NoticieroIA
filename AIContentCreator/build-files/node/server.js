@@ -13,14 +13,18 @@ app.use(cors());           // Permite solicitudes desde cualquier origen
 app.use(bodyParser.json()); // Permite leer JSON del body
 
 // Servir archivos estáticos (desde /app ya que server.js está en /app)
-app.use('/css', express.static(path.join(__dirname, './css')));
-app.use('/js', express.static(path.join(__dirname, './js')));
+app.use('/api', express.static(path.join(__dirname, './api')));
+app.use('/code', express.static(path.join(__dirname, './code')));
+app.use('/controllers', express.static(path.join(__dirname, './controllers')));
+app.use('/db', express.static(path.join(__dirname, './db')));
 app.use('/img', express.static(path.join(__dirname, './img')));
-app.use('/vistas', express.static(path.join(__dirname, './vistas')));
+app.use('/models', express.static(path.join(__dirname, './models')));
+app.use('/styles', express.static(path.join(__dirname, './styles')));
+app.use('/views', express.static(path.join(__dirname, './views')));
 
 // Rutas para las vistas HTML
 app.get('/', (req, res) => {
-  const filePath = path.join(__dirname, './vistas/login.html');
+  const filePath = path.join(__dirname, './views/login_view.phtml');
   console.log('Serving login.html from:', filePath);
   res.sendFile(filePath, (err) => {
     if (err) {
@@ -31,7 +35,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  const filePath = path.join(__dirname, './vistas/login.html');
+  const filePath = path.join(__dirname, './views/login_view.phtml');
   res.sendFile(filePath, (err) => {
     if (err) {
       console.error('Error serving login.html:', err);
@@ -41,7 +45,7 @@ app.get('/login', (req, res) => {
 });
 
 app.get('/home', (req, res) => {
-  const filePath = path.join(__dirname, './vistas/home.html');
+  const filePath = path.join(__dirname, './views/home_view.phtml');
   res.sendFile(filePath, (err) => {
     if (err) {
       console.error('Error serving home.html:', err);
@@ -51,7 +55,7 @@ app.get('/home', (req, res) => {
 });
 
 app.get('/articulos', (req, res) => {
-  const filePath = path.join(__dirname, './vistas/articulos.html');
+  const filePath = path.join(__dirname, './views/articulos_view.phtml');
   res.sendFile(filePath, (err) => {
     if (err) {
       console.error('Error serving articulos.html:', err);
@@ -89,21 +93,21 @@ app.get('/debug/files', (req, res) => {
   
   try {
     debugInfo.files.app = fs.readdirSync(__dirname);
-    debugInfo.files.vistas = fs.existsSync(path.join(__dirname, './vistas')) 
-      ? fs.readdirSync(path.join(__dirname, './vistas'))
+    debugInfo.files.vistas = fs.existsSync(path.join(__dirname, './views')) 
+      ? fs.readdirSync(path.join(__dirname, './views'))
       : 'NO EXISTE';
-    debugInfo.files.css = fs.existsSync(path.join(__dirname, './css'))
-      ? fs.readdirSync(path.join(__dirname, './css'))
+    debugInfo.files.css = fs.existsSync(path.join(__dirname, './styles'))
+      ? fs.readdirSync(path.join(__dirname, './styles'))
       : 'NO EXISTE';
-    debugInfo.files.js = fs.existsSync(path.join(__dirname, './js'))
-      ? fs.readdirSync(path.join(__dirname, './js'))
+    debugInfo.files.js = fs.existsSync(path.join(__dirname, './code'))
+      ? fs.readdirSync(path.join(__dirname, './code'))
       : 'NO EXISTE';
     debugInfo.files.img = fs.existsSync(path.join(__dirname, './img'))
       ? fs.readdirSync(path.join(__dirname, './img'))
       : 'NO EXISTE';
     
     // Verificar archivos específicos
-    const loginHtml = path.join(__dirname, './vistas/login.html');
+    const loginHtml = path.join(__dirname, './views/login_view.phtml');
     debugInfo.files.loginHtml = fs.existsSync(loginHtml) ? 'EXISTE' : 'NO EXISTE';
     
   } catch (err) {
@@ -174,8 +178,8 @@ app.get('/diagnostic', (req, res) => {
     },
     files: {
       serverJs: fs.existsSync(path.join(__dirname, './server.js')) ? 'EXISTS' : 'NOT FOUND',
-      vistas: fs.existsSync(path.join(__dirname, './vistas')) ? 'EXISTS' : 'NOT FOUND',
-      loginHtml: fs.existsSync(path.join(__dirname, './vistas/login.html')) ? 'EXISTS' : 'NOT FOUND'
+      vistas: fs.existsSync(path.join(__dirname, './views')) ? 'EXISTS' : 'NOT FOUND',
+      loginHtml: fs.existsSync(path.join(__dirname, './views/login_view.phtml')) ? 'EXISTS' : 'NOT FOUND'
     },
     environment: {
       PORT: process.env.PORT,
