@@ -2,22 +2,19 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copiar package.json e instalar dependencias
-COPY beta/node/package*.json ./
+# 1) Dependencias de Node desde AIContentCreator/build-files/node
+COPY AIContentCreator/build-files/node/package*.json ./
 RUN npm install --production
 
-# Copiar código de la aplicación
-COPY beta/node/*.js ./
+# 2) Código del servidor (server.js, etc.)
+COPY AIContentCreator/build-files/node/*.js ./
 
-# Copiar archivos estáticos desde beta/
-COPY beta/vistas/ ./vistas/
-COPY beta/css/ ./css/
-COPY beta/js/ ./js/
-COPY beta/img/ ./img/
+# 3) Archivos estáticos generados por prepare-build.sh
+COPY AIContentCreator/build-files/vistas/ ./vistas/
+COPY AIContentCreator/build-files/css/    ./css/
+COPY AIContentCreator/build-files/js/     ./js/
+COPY AIContentCreator/build-files/img/    ./img/
 
-# Exponer puerto
 EXPOSE 3000
 
-# Comando de inicio
 CMD ["node", "server.js"]
-
