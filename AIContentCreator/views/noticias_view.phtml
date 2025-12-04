@@ -53,7 +53,7 @@
                     <?php foreach ($noticias as $row): ?>
                         <?php
                             $notRev = $row['noticia_revisada'] ?? null;   // 'pendiente' / 'revisada' / null
-                            $imgRev = $row['imagen_revisada'] ?? null;    // 'pendiente' / 'aprobada' / null
+                            $imgRev = $row['imagen_revisada'] ?? null;    // 'reemplazar imagen' / 'aprobada' / null
                             $pubVal = $row['publicado'] ?? null;          // 'borrador' / 'publicado' / null
 
                             $titulo      = $row['titulo']      ?? '';
@@ -123,8 +123,8 @@
                                         <label>Imagen</label>
                                         <select name="imagen_revisada" class="select-status">
                                             <option value="" <?= ($imgRev === null || $imgRev === '') ? 'selected' : '' ?>></option>
-                                            <option value="pendiente" <?= ($imgRev === 'pendiente') ? 'selected' : '' ?>>
-                                                Pendiente
+                                            <option value="reemplazar imagen" <?= ($imgRev === 'reemplazar imagen') ? 'selected' : '' ?>>
+                                                Reemplazar imagen
                                             </option>
                                             <option value="aprobada" <?= ($imgRev === 'aprobada') ? 'selected' : '' ?>>
                                                 Aprobada

@@ -133,7 +133,7 @@ $idGeneroSafe = (int)($idGenero ?? 0);
                             <label>Imagen</label>
                             <select name="imagen_revisada" class="select-status">
                                 <option value="" <?= ($imgRev === null || $imgRev === '') ? 'selected' : '' ?>></option>
-                                <option value="pendiente" <?= ($imgRev === 'pendiente') ? 'selected' : '' ?>>Pendiente</option>
+                                <option value="reemplazar imagen" <?= ($imgRev === 'reemplazar imagen') ? 'selected' : '' ?>>Reemplazar imagen</option>
                                 <option value="aprobada"  <?= ($imgRev === 'aprobada')  ? 'selected' : '' ?>>Aprobada</option>
                             </select>
                         </div>
