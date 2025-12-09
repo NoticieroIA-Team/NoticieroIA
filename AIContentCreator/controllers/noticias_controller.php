@@ -10,7 +10,9 @@ if (!isset($_SESSION['usuario'])) {
 
 $usuario = $_SESSION['usuario'];
 
-require_once __DIR__ . './../db/db.php';
+// 🔴 AQUÍ ESTABA EL PROBLEMA
+// require_once __DIR__ . './../db/db.php';
+require_once __DIR__ . '/../db/db.php';   // ✅ ruta corregida
 
 $pdo = Database::conectar();
 
